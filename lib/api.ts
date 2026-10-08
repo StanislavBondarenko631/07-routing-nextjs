@@ -16,6 +16,7 @@ const noteApi = axios.create({
 interface FetchNotesParams {
   page?: number;
   search?: string;
+  tag?: string;
 }
 
 interface FetchNotesResponse {
@@ -26,11 +27,13 @@ interface FetchNotesResponse {
 export const fetchNotes = async ({
   page,
   search,
+  tag,
 }: FetchNotesParams): Promise<FetchNotesResponse> => {
   const response = await noteApi.get<FetchNotesResponse>('', {
     params: {
       page,
       search,
+      tag: tag === 'all' ? undefined : tag,
     },
   });
   return response.data;

@@ -14,23 +14,18 @@ import Loader from '@/components/Loader/Loader';
 import ErrorView from '@/components/ErrorView/ErrorView';
 
 interface NotesClientProps {
-  currentTag: string;
+  tag: string;
 }
 
-export default function NotesClient({ currentTag }: NotesClientProps) {
+export default function NotesClient({ tag }: NotesClientProps) {
   const [page, setPage] = useState<number>(1);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['notes', { page, search }],
-    queryFn: () => fetchNotes({ page, search }),
+    queryKey: ['notes', { page, search, tag }],
+    queryFn: () => fetchNotes({ page, search, tag }),
     placeholderData: keepPreviousData,
-  });
-
-  const filteredNotes = (data?.notes || []).filter(note => {
-    if (currentTag === 'all') return true;
-    return note.tag.toLowerCase() === currentTag.toLowerCase();
   });
 
   const totalPages = data?.totalPages || 1;
@@ -66,8 +61,8 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
 
       {!isLoading && !isError && (
         <>
-          {filteredNotes.length > 0 ? (
-            <NoteList notes={filteredNotes} />
+          {(data?.notes || []).length > 0 ? (
+            <NoteList notes={data?.notes || []} />
           ) : (
             <ErrorView
               message={
