@@ -13,7 +13,11 @@ import { fetchNotes } from '@/lib/api';
 import Loader from '@/components/Loader/Loader';
 import ErrorView from '@/components/ErrorView/ErrorView';
 
-export default function NotesClient() {
+interface NotesClientProps {
+  currentTag: string;
+}
+
+export default function NotesClient({ currentTag }: NotesClientProps) {
   const [page, setPage] = useState<number>(1);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
@@ -22,6 +26,11 @@ export default function NotesClient() {
     queryKey: ['notes', { page, search }],
     queryFn: () => fetchNotes({ page, search }),
     placeholderData: keepPreviousData,
+  });
+
+  const filteredNotes = (data?.notes || []).filter(note => {
+    if (currentTag === 'all') return true;
+    return note.tag.toLowerCase() === currentTag.toLowerCase();
   });
 
   const totalPages = data?.totalPages || 1;
@@ -57,8 +66,8 @@ export default function NotesClient() {
 
       {!isLoading && !isError && (
         <>
-          {(data?.notes || []).length > 0 ? (
-            <NoteList notes={data?.notes || []} />
+          {filteredNotes.length > 0 ? (
+            <NoteList notes={filteredNotes} />
           ) : (
             <ErrorView
               message={
